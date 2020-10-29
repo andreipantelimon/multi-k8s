@@ -3,10 +3,11 @@ services:
   - docker
 env:
   global:
+    secure: t+0pvC5ynMvfwdMtn7F897rnIbbc3Ho2KZ/LRgqfIAmsSqiXt2wBYJxKqlvqy4SFyKh2w72kD5d1GoprmzDpTNDs4Tv/hX+Bbo5hJDUnp4Yzs3eL0f/arfEQcwM7JH2lLgNxe6VhPkKCi3WZ255Ri6EexvFoFpQV+L84q5akaCRX/oxP0NrWSCwNemm3EaOPeVntfu1c2VIa1gnoPaAqkp4GQHemTLQPfL6NgynjbJwii8Wf1SukJzAMGbWjRE10dFhLE510OfrUeZraMTp7XYg1hQIM8IM6GyaRuTnCnk5UQwu+ycNxeQhdaQPx9XTgtYDzEHSP1RNwsHzD7LnbbADl1Y+4EQLjDxEmCN5rkz8y5lR8bq3MUpmTyKCeWv3c32MlB3zSq5Bea3pukB/dPLaCNi6QvMeps/HMhqOdceGFGRbdBIIdTHEk6or+u1IX3s2Es9MOiy6/+gjQpXZUmsXU8deX+J5mOLbCIN67abE8joX95WBPMxagLR2v9E1AFoFgL0q9i4YGEi4PAYK5EAVRlXOTqAIAVPjT0EeRyJ3f41cOIMf/fELHuyNSKUXh89TK97nw8Lgfh2Wb/wRXvQ2al7FgY5QNPmi5gMUhn3J8J3o3nLwsG4Gm8VcIHm1QDDcKMr5JZzqGLEmmc/AzamFoi+r3tmGnLdBhVYO5l3U=
     - SHA=$(git rev-parse HEAD)
     - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 before_install:
-  - openssl aes-256-cbc -K $encrypted_da27437a790e_key -iv $encrypted_da27437a790e_iv -in multi-k8s-294015-a5081aacec25.json.enc -out multi-k8s-294015-a5081aacec25.json -d
+  - openssl aes-256-cbc -k "$secret_password" -in multi-k8s-294015-a5081aacec25.json.enc -out multi-k8s-294015-a5081aacec25.json -d
   - curl https://sdk.cloud.google.com | bash > /dev/null;
   - source $HOME/google-cloud-sdk/path.bash.inc
   - gcloud components update kubectl
@@ -16,10 +17,8 @@ before_install:
   - gcloud container clusters get-credentials multi-cluster
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t k1r0n/react-test -f ./client/Dockerfile.dev ./client
-
 script:
   - docker run -e CI=true k1r0n/react-test npm test
-
 deploy:
   provider: script
   script: bash ./deploy.sh
